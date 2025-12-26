@@ -135,14 +135,45 @@
       </a-gltf-model>
       -->
 
-      <!-- ========== オプション2: 透過PNG画像（現在有効） ========== -->
-      <!-- タップ可能な透過PNG画像 -->
+      <!-- ========== オプション2: 透過PNG画像＋3Dオブジェクト（現在有効） ========== -->
+
+      <!-- 背景の3Dオブジェクト -->
+      <a-entity id="background-objects" position="0 0.2 0">
+        <!-- 発光する球 -->
+        <a-sphere position="0 0 0" radius="0.15" color="#00ffff" opacity="0.6"
+                  animation="property: scale; from: 1 1 1; to: 1.3 1.3 1.3; dur: 1500; easing: easeInOutSine; loop: true; dir: alternate">
+        </a-sphere>
+
+        <!-- パーティクル -->
+        <a-sphere position="0.3 0 0" radius="0.03" color="#00aaff" opacity="0.8"
+                  animation="property: position; from: 0.3 0 0; to: 0.5 0.1 0; dur: 2000; easing: linear; loop: true">
+        </a-sphere>
+        <a-sphere position="-0.3 0 0" radius="0.03" color="#00aaff" opacity="0.8"
+                  animation="property: position; from: -0.3 0 0; to: -0.5 0.1 0; dur: 2000; easing: linear; loop: true">
+        </a-sphere>
+        <a-sphere position="0 0 0.3" radius="0.03" color="#ff00ff" opacity="0.8"
+                  animation="property: position; from: 0 0 0.3; to: 0.1 0 0.5; dur: 2000; easing: linear; loop: true">
+        </a-sphere>
+        <a-sphere position="0 0 -0.3" radius="0.03" color="#ff00ff" opacity="0.8"
+                  animation="property: position; from: 0 0 -0.3; to: 0.1 0 -0.5; dur: 2000; easing: linear; loop: true">
+        </a-sphere>
+
+        <!-- 回転リング -->
+        <a-torus radius="0.35" radius-tubular="0.015" color="#ff00ff" rotation="90 0 0" opacity="0.7"
+                 animation="property: rotation; from: 90 0 0; to: 90 360 0; dur: 3000; easing: linear; loop: true">
+        </a-torus>
+        <a-torus radius="0.28" radius-tubular="0.012" color="#ffff00" rotation="90 60 0" opacity="0.7"
+                 animation="property: rotation; from: 90 60 0; to: 90 -300 0; dur: 4000; easing: linear; loop: true">
+        </a-torus>
+      </a-entity>
+
+      <!-- 前面の透過PNG画像（タップ可能） - サイズを大きく -->
       <a-image
         id="overlay-image"
         src="/images/overlay-placeholder.svg"
-        position="0 0.3 0"
-        width="0.5"
-        height="0.5"
+        position="0 0.35 0.1"
+        width="0.8"
+        height="0.8"
         transparent="true"
         alpha-test="0.1"
         shader="flat"
@@ -151,13 +182,17 @@
         animation="property: rotation; to: 0 360 0; dur: 10000; easing: linear; loop: true">
       </a-image>
 
-      <!-- 背景エフェクト（オプション：パーティクル） -->
-      <!--
-      <a-entity id="particles" position="0 0.2 0">
-        <a-sphere position="0.3 0 0" radius="0.02" color="#00aaff" opacity="0.8" animation="property: position; from: 0.3 0 0; to: 0.5 0.1 0; dur: 2000; easing: linear; loop: true"></a-sphere>
-        <a-sphere position="-0.3 0 0" radius="0.02" color="#00aaff" opacity="0.8" animation="property: position; from: -0.3 0 0; to: -0.5 0.1 0; dur: 2000; easing: linear; loop: true"></a-sphere>
-      </a-entity>
-      -->
+      <!-- タップ領域を拡大する透明ボックス（バックアップ） -->
+      <a-box
+        id="tap-area"
+        position="0 0.35 0.15"
+        width="1.0"
+        height="1.0"
+        depth="0.1"
+        opacity="0"
+        class="clickable"
+        tap-to-url="url: https://example.com">
+      </a-box>
 
       <!-- ========== オプション3: デフォルトエフェクト（非表示） ========== -->
       <!--
