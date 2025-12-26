@@ -3,6 +3,21 @@ const CONFIG = {
   targetURL: 'https://example.com', // タップ時の遷移先URL
 };
 
+// ========== A-Frameカスタムコンポーネント：クリックでURL遷移 ==========
+AFRAME.registerComponent('tap-to-url', {
+  schema: {
+    url: { type: 'string', default: 'https://example.com' }
+  },
+  init: function () {
+    this.onClick = this.onClick.bind(this);
+    this.el.addEventListener('click', this.onClick);
+  },
+  onClick: function () {
+    console.log('[TAP] オブジェクトタップ検知 -> URL遷移:', this.data.url);
+    window.location.href = this.data.url;
+  }
+});
+
 // ========== UI要素 ==========
 const guideOverlay = document.getElementById('guide-overlay');
 
@@ -34,21 +49,4 @@ document.addEventListener('DOMContentLoaded', () => {
       guideOverlay.classList.remove('hidden');
     }
   });
-
-  // クリック可能オブジェクトのタップイベント
-  const clickable = document.getElementById('clickable');
-
-  if (clickable) {
-    clickable.addEventListener('click', () => {
-      console.log('[TAP] オブジェクトタップ検知 -> URL遷移:', CONFIG.targetURL);
-      window.location.href = CONFIG.targetURL;
-    });
-
-    // タッチデバイス用
-    clickable.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      console.log('[TAP] オブジェクトタップ検知(touch) -> URL遷移:', CONFIG.targetURL);
-      window.location.href = CONFIG.targetURL;
-    });
-  }
 });
