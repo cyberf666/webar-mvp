@@ -1,0 +1,8 @@
+プレースホルダー: 実際のターゲット画像をここに配置してください。
+
+MindAR Image Compilerで.mindファイルを作成する必要があります:
+https://hiukim.github.io/mind-ar-js-doc/tools/compile
+
+推奨サイズ: 512x512 〜 1024x1024px
+形式: PNG / JPG
+条件: コントラストが高く、特徴点の多い画像

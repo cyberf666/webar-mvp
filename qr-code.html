@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>QRコード - WebAR MVP</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    #qr {
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>WebAR MVP アクセス用QRコード</h1>
+  <p>スマホでスキャンしてください</p>
+  <div id="qr"></div>
+  <p>URL: <strong>http://192.168.151.219:5173/</strong></p>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script>
+    new QRCode(document.getElementById("qr"), {
+      text: "http://192.168.151.219:5173/",
+      width: 256,
+      height: 256
+    });
+  </script>
+</body>
+</html>
