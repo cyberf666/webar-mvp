@@ -113,8 +113,12 @@
   </div>
 
   <a-scene mindar-image="imageTargetSrc: /targets/target.mind; showStats: false; uiScanning: no; uiLoading: no;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
-    <a-camera position="0 0 0" look-controls="enabled: false">
-      <a-cursor raycaster="objects: .clickable" fuse="false"></a-cursor>
+    <a-camera position="0 0 0" look-controls="enabled: false" cursor="rayOrigin: mouse">
+      <a-cursor
+        raycaster="objects: .clickable; far: 10"
+        fuse="false"
+        visible="false">
+      </a-cursor>
     </a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0">

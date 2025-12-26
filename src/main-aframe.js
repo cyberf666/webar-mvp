@@ -9,12 +9,34 @@ AFRAME.registerComponent('tap-to-url', {
     url: { type: 'string', default: 'https://example.com' }
   },
   init: function () {
-    this.onClick = this.onClick.bind(this);
-    this.el.addEventListener('click', this.onClick);
+    this.handleClick = this.handleClick.bind(this);
+    this.handleTouch = this.handleTouch.bind(this);
+
+    // マウスクリックイベント（PC用）
+    this.el.addEventListener('click', this.handleClick);
+
+    // タッチイベント（スマホ用）
+    this.el.addEventListener('touchend', this.handleTouch);
+
+    // カーソルイベント（A-Frame cursor用）
+    this.el.addEventListener('mouseenter', () => {
+      console.log('[HOVER] オブジェクトにカーソル');
+    });
   },
-  onClick: function () {
-    console.log('[TAP] オブジェクトタップ検知 -> URL遷移:', this.data.url);
+  handleClick: function (evt) {
+    console.log('[CLICK] オブジェクトクリック検知 -> URL遷移:', this.data.url);
+    evt.stopPropagation();
     window.location.href = this.data.url;
+  },
+  handleTouch: function (evt) {
+    console.log('[TOUCH] オブジェクトタッチ検知 -> URL遷移:', this.data.url);
+    evt.preventDefault();
+    evt.stopPropagation();
+    window.location.href = this.data.url;
+  },
+  remove: function () {
+    this.el.removeEventListener('click', this.handleClick);
+    this.el.removeEventListener('touchend', this.handleTouch);
   }
 });
 
@@ -49,4 +71,22 @@ document.addEventListener('DOMContentLoaded', () => {
       guideOverlay.classList.remove('hidden');
     }
   });
+
+  // デバッグ: タップ可能オブジェクトの確認
+  setTimeout(() => {
+    const clickables = document.querySelectorAll('.clickable');
+    console.log('[DEBUG] クリック可能なオブジェクト数:', clickables.length);
+    clickables.forEach((el, index) => {
+      console.log(`[DEBUG] オブジェクト ${index}:`, el.tagName, el.id);
+
+      // 追加のタッチイベントリスナー（バックアップ）
+      el.addEventListener('touchstart', (e) => {
+        console.log('[DEBUG] touchstart検知');
+      });
+
+      el.addEventListener('mousedown', (e) => {
+        console.log('[DEBUG] mousedown検知');
+      });
+    });
+  }, 2000);
 });
