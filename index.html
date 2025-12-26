@@ -135,11 +135,34 @@
       </a-gltf-model>
       -->
 
-      <!-- ========== オプション2: デフォルトエフェクト（現在有効） ========== -->
-      <!-- 発光する中心の球（タップ可能） -->
+      <!-- ========== オプション2: 透過PNG画像（現在有効） ========== -->
+      <!-- タップ可能な透過PNG画像 -->
+      <a-image
+        id="overlay-image"
+        src="/images/overlay-placeholder.svg"
+        position="0 0.3 0"
+        width="0.5"
+        height="0.5"
+        transparent="true"
+        alpha-test="0.1"
+        shader="flat"
+        class="clickable"
+        tap-to-url="url: https://example.com"
+        animation="property: rotation; to: 0 360 0; dur: 10000; easing: linear; loop: true">
+      </a-image>
+
+      <!-- 背景エフェクト（オプション：パーティクル） -->
+      <!--
+      <a-entity id="particles" position="0 0.2 0">
+        <a-sphere position="0.3 0 0" radius="0.02" color="#00aaff" opacity="0.8" animation="property: position; from: 0.3 0 0; to: 0.5 0.1 0; dur: 2000; easing: linear; loop: true"></a-sphere>
+        <a-sphere position="-0.3 0 0" radius="0.02" color="#00aaff" opacity="0.8" animation="property: position; from: -0.3 0 0; to: -0.5 0.1 0; dur: 2000; easing: linear; loop: true"></a-sphere>
+      </a-entity>
+      -->
+
+      <!-- ========== オプション3: デフォルトエフェクト（非表示） ========== -->
+      <!--
       <a-sphere id="core" position="0 0.2 0" radius="0.1" color="#00ffff" opacity="0.8" animation="property: scale; from: 1 1 1; to: 1.2 1.2 1.2; dur: 1000; easing: easeInOutSine; loop: true; dir: alternate" class="clickable" tap-to-url="url: https://example.com"></a-sphere>
 
-      <!-- パーティクルエフェクト（複数の小さな球） -->
       <a-entity id="particles" position="0 0.2 0">
         <a-sphere position="0.3 0 0" radius="0.02" color="#00aaff" opacity="0.8" animation="property: position; from: 0.3 0 0; to: 0.5 0.1 0; dur: 2000; easing: linear; loop: true"></a-sphere>
         <a-sphere position="-0.3 0 0" radius="0.02" color="#00aaff" opacity="0.8" animation="property: position; from: -0.3 0 0; to: -0.5 0.1 0; dur: 2000; easing: linear; loop: true"></a-sphere>
@@ -147,9 +170,9 @@
         <a-sphere position="0 0 -0.3" radius="0.02" color="#00aaff" opacity="0.8" animation="property: position; from: 0 0 -0.3; to: 0.1 0 -0.5; dur: 2000; easing: linear; loop: true"></a-sphere>
       </a-entity>
 
-      <!-- 回転リング -->
       <a-torus id="ring1" position="0 0.2 0" radius="0.3" radius-tubular="0.01" color="#ff00ff" rotation="90 0 0" animation="property: rotation; from: 90 0 0; to: 90 360 0; dur: 3000; easing: linear; loop: true"></a-torus>
       <a-torus id="ring2" position="0 0.2 0" radius="0.25" radius-tubular="0.01" color="#ffff00" rotation="90 60 0" animation="property: rotation; from: 90 60 0; to: 90 -300 0; dur: 4000; easing: linear; loop: true"></a-torus>
+      -->
     </a-entity>
   </a-scene>
 
