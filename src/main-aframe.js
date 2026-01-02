@@ -42,6 +42,7 @@ AFRAME.registerComponent('tap-to-url', {
 
 // ========== UI要素 ==========
 const guideOverlay = document.getElementById('guide-overlay');
+const tapIndicator = document.getElementById('tap-indicator');
 
 // ========== A-Frameシーン準備完了 ==========
 document.addEventListener('DOMContentLoaded', () => {
@@ -62,6 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (guideOverlay) {
       guideOverlay.classList.add('hidden');
     }
+    // Show tap indicator when target is found
+    if (tapIndicator) {
+      tapIndicator.style.display = 'block';
+    }
   });
 
   // ターゲットロスト時
@@ -69,6 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('[AR] ターゲットロスト');
     if (guideOverlay) {
       guideOverlay.classList.remove('hidden');
+    }
+    // Hide tap indicator when target is lost
+    if (tapIndicator) {
+      tapIndicator.style.display = 'none';
     }
   });
 
@@ -89,4 +98,20 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }, 2000);
+
+  // 画面全体のタップを検知（最終手段）
+  const sceneCanvas = document.querySelector('a-scene canvas');
+  if (sceneCanvas) {
+    sceneCanvas.addEventListener('touchend', (e) => {
+      console.log('[FALLBACK] 画面タップ検知 -> URL遷移');
+      const clickables = document.querySelectorAll('.clickable');
+      if (clickables.length > 0) {
+        const url = clickables[0].getAttribute('tap-to-url');
+        if (url) {
+          console.log('[FALLBACK] URL遷移:', url);
+          window.location.href = url;
+        }
+      }
+    });
+  }
 });
