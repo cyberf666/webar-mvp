@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理画面 QRコード</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      padding: 50px;
+      text-align: center;
+      max-width: 600px;
+    }
+
+    h1 {
+      font-size: 32px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 16px;
+      margin-bottom: 40px;
+    }
+
+    .qr-wrapper {
+      background: #f8f9fa;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      display: inline-block;
+    }
+
+    #qrcode {
+      margin: 0 auto;
+    }
+
+    .url-display {
+      background: #e3f2fd;
+      border: 2px solid #2196f3;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 25px;
+      word-break: break-all;
+      color: #1565c0;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .info-box {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    .info-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #856404;
+    }
+
+    .info-box p {
+      color: #856404;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin: 10px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+    }
+
+    .features {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 25px;
+      text-align: left;
+    }
+
+    .features h3 {
+      color: #333;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .features ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .features li {
+      padding: 8px 0;
+      color: #555;
+      font-size: 14px;
+    }
+
+    .features li:before {
+      content: "✓ ";
+      color: #4caf50;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .container {
+        box-shadow: none;
+      }
+
+      .btn {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 管理画面アクセス</h1>
+    <p class="subtitle">QRコードをスキャンして管理画面にアクセス</p>
+
+    <div class="qr-wrapper">
+      <div id="qrcode"></div>
+    </div>
+
+    <div class="url-display" id="admin-url"></div>
+
+    <div class="info-box">
+      <strong>📱 アクセス方法</strong>
+      <p>スマートフォンでQRコードをスキャンするか、上記URLをブラウザで開いてください。</p>
+    </div>
+
+    <div class="info-box">
+      <strong>🔑 ログイン情報</strong>
+      <p>デフォルトパスワード: <code style="background: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">admin123</code></p>
+    </div>
+
+    <button class="btn" onclick="window.open(document.getElementById('admin-url').textContent, '_blank')">
+      管理画面を開く
+    </button>
+
+    <button class="btn btn-secondary" onclick="window.print()">
+      印刷する
+    </button>
+
+    <div class="features">
+      <h3>⚙️ 管理画面でできること</h3>
+      <ul>
+        <li>タップ時のリンク先URL設定</li>
+        <li>3Dモデル（GLB）のアップロードと配置</li>
+        <li>位置・スケール・回転の調整</li>
+        <li>アニメーションの有効/無効</li>
+        <li>BGM（MP3）の設定</li>
+        <li>音量・ループ・自動再生の制御</li>
+        <li>設定のダウンロード（config.json）</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- QRコード生成ライブラリ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    // 現在のドメインから管理画面URLを生成
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    const adminUrl = `${protocol}//${host}/admin.html`;
+
+    // URLを表示
+    document.getElementById('admin-url').textContent = adminUrl;
+
+    // QRコードを生成
+    new QRCode(document.getElementById('qrcode'), {
+      text: adminUrl,
+      width: 256,
+      height: 256,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  </script>
+</body>
+</html>
