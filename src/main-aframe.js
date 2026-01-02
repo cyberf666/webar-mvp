@@ -1,7 +1,93 @@
-// ========== 設定値（後で差し替え可能） ==========
-const CONFIG = {
-  targetURL: 'https://example.com', // タップ時の遷移先URL
+// ========== 設定値（config.jsonから読み込み） ==========
+let CONFIG = {
+  targetURL: 'https://example.com', // タップ時の遷移先URL（デフォルト）
 };
+let BGM_AUDIO = null;
+
+// ========== 設定ファイルを読み込み ==========
+async function loadConfig() {
+  try {
+    const response = await fetch('/config.json');
+    if (response.ok) {
+      const config = await response.json();
+      console.log('[CONFIG] 設定ファイル読み込み成功:', config);
+
+      // URLを更新
+      CONFIG.targetURL = config.ar.targetUrl;
+
+      // 3Dモデルを表示
+      if (config.ar.model.enabled) {
+        showModel(config.ar.model);
+      }
+
+      // BGMを設定
+      if (config.ar.bgm.enabled && config.ar.bgm.url) {
+        setupBGM(config.ar.bgm);
+      }
+
+      return config;
+    } else {
+      console.warn('[CONFIG] 設定ファイルが見つかりません。デフォルト設定を使用します。');
+    }
+  } catch (error) {
+    console.error('[CONFIG] 設定ファイルの読み込みに失敗:', error);
+  }
+  return null;
+}
+
+// ========== 3Dモデルを表示 ==========
+function showModel(modelConfig) {
+  const target = document.querySelector('[mindar-image-target]');
+
+  // 既存の透明ボックスを削除
+  const tapArea = document.getElementById('tap-area');
+  if (tapArea) {
+    tapArea.remove();
+  }
+
+  // GLTFモデルを追加
+  const model = document.createElement('a-gltf-model');
+  model.setAttribute('src', modelConfig.url);
+  model.setAttribute('position', `${modelConfig.position.x} ${modelConfig.position.y} ${modelConfig.position.z}`);
+  model.setAttribute('scale', `${modelConfig.scale.x} ${modelConfig.scale.y} ${modelConfig.scale.z}`);
+  model.setAttribute('rotation', `${modelConfig.rotation.x} ${modelConfig.rotation.y} ${modelConfig.rotation.z}`);
+  model.setAttribute('class', 'clickable');
+  model.setAttribute('tap-to-url', `url: ${CONFIG.targetURL}`);
+
+  if (modelConfig.animation.enabled) {
+    model.setAttribute('animation-mixer', '');
+  }
+
+  target.appendChild(model);
+  console.log('[MODEL] 3Dモデルを表示:', modelConfig.url);
+}
+
+// ========== BGMを設定 ==========
+function setupBGM(bgmConfig) {
+  BGM_AUDIO = new Audio(bgmConfig.url);
+  BGM_AUDIO.volume = bgmConfig.volume;
+  BGM_AUDIO.loop = bgmConfig.loop;
+
+  if (bgmConfig.autoplay) {
+    // ターゲット検出時にBGM再生
+    const target = document.querySelector('[mindar-image-target]');
+    target.addEventListener('targetFound', () => {
+      if (BGM_AUDIO && BGM_AUDIO.paused) {
+        BGM_AUDIO.play().catch(err => {
+          console.warn('[BGM] 自動再生に失敗（ユーザーインタラクション必要）:', err);
+        });
+      }
+    });
+
+    target.addEventListener('targetLost', () => {
+      if (BGM_AUDIO && !BGM_AUDIO.paused) {
+        BGM_AUDIO.pause();
+      }
+    });
+  }
+
+  console.log('[BGM] BGMを設定:', bgmConfig.url);
+}
 
 // ========== A-Frameカスタムコンポーネント：クリックでURL遷移 ==========
 AFRAME.registerComponent('tap-to-url', {
@@ -45,8 +131,11 @@ const guideOverlay = document.getElementById('guide-overlay');
 const tapIndicator = document.getElementById('tap-indicator');
 
 // ========== A-Frameシーン準備完了 ==========
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   console.log('[APP] 起動開始');
+
+  // 設定ファイルを読み込み
+  await loadConfig();
 
   const sceneEl = document.querySelector('a-scene');
 
@@ -104,6 +193,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sceneCanvas) {
     sceneCanvas.addEventListener('touchend', (e) => {
       console.log('[FALLBACK] 画面タップ検知 -> URL遷移');
+
+      // BGM再生を試みる（ユーザーインタラクション）
+      if (BGM_AUDIO && BGM_AUDIO.paused) {
+        BGM_AUDIO.play().catch(err => console.warn('[BGM] 再生失敗:', err));
+      }
+
+      // URL遷移
       const clickables = document.querySelectorAll('.clickable');
       if (clickables.length > 0) {
         const url = clickables[0].getAttribute('tap-to-url');
@@ -111,6 +207,10 @@ document.addEventListener('DOMContentLoaded', () => {
           console.log('[FALLBACK] URL遷移:', url);
           window.location.href = url;
         }
+      } else {
+        // clickableがない場合はCONFIGのURLを使用
+        console.log('[FALLBACK] CONFIG URL遷移:', CONFIG.targetURL);
+        window.location.href = CONFIG.targetURL;
       }
     });
   }

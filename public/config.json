@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-03T00:00:00.000Z",
+  "ar": {
+    "targetUrl": "https://example.com",
+    "model": {
+      "enabled": false,
+      "url": "/models/model.glb",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "animation": {
+        "enabled": true
+      }
+    },
+    "bgm": {
+      "enabled": false,
+      "url": "",
+      "volume": 0.5,
+      "loop": true,
+      "autoplay": true
+    }
+  }
+}

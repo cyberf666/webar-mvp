@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebAR 管理画面</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .login-form {
+      max-width: 400px;
+      margin: 40px auto;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .form-group input[type="password"],
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group input[type="file"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-group small {
+      display: block;
+      margin-top: 6px;
+      color: #666;
+      font-size: 12px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      margin-top: 10px;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+
+    .error-message {
+      background: #ff4757;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .success-message {
+      background: #38ef7d;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .section {
+      margin-bottom: 35px;
+      padding-bottom: 35px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #667eea;
+    }
+
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 26px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 26px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #667eea;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    .toggle-label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .file-info {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .model-preview {
+      margin-top: 15px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 6px;
+    }
+
+    .model-preview strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .model-preview p {
+      font-size: 13px;
+      color: #666;
+      margin: 4px 0;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 15px;
+      margin-bottom: 25px;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #1565c0;
+    }
+
+    .logout-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.4);
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div id="login-screen" class="container">
+    <div class="header">
+      <h1>🔐 WebAR 管理画面</h1>
+      <p>設定を変更するにはパスワードを入力してください</p>
+    </div>
+    <div class="content">
+      <div class="login-form">
+        <div id="login-error" class="error-message hidden"></div>
+        <div class="form-group">
+          <label for="password">パスワード</label>
+          <input type="password" id="password" placeholder="パスワードを入力">
+          <small>デフォルト: admin123</small>
+        </div>
+        <button class="btn" onclick="login()">ログイン</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="admin-screen" class="container hidden">
+    <div class="header" style="position: relative;">
+      <h1>⚙️ WebAR 設定管理</h1>
+      <p>3Dモデル、リンク先、BGMを設定できます</p>
+      <button class="logout-btn" onclick="logout()">ログアウト</button>
+    </div>
+    <div class="content">
+      <div id="save-success" class="success-message hidden"></div>
+      <div id="save-error" class="error-message hidden"></div>
+
+      <div class="info-box">
+        💡 設定を変更したら「設定を保存してダウンロード」をクリックし、ダウンロードしたconfig.jsonをGitにコミット＆プッシュしてください。
+      </div>
+
+      <!-- リンク先設定 -->
+      <div class="section">
+        <h2 class="section-title">🔗 タップ時のリンク先</h2>
+        <div class="form-group">
+          <label for="targetUrl">遷移先URL</label>
+          <input type="text" id="targetUrl" placeholder="https://example.com">
+          <small>ARオブジェクトをタップした時に開くURL</small>
+        </div>
+      </div>
+
+      <!-- 3Dモデル設定 -->
+      <div class="section">
+        <h2 class="section-title">🎨 3Dモデル設定</h2>
+
+        <div class="toggle-group">
+          <label class="toggle-switch">
+            <input type="checkbox" id="modelEnabled" onchange="toggleModelSettings()">
+            <span class="slider"></span>
+          </label>
+          <span class="toggle-label">3Dモデルを使用する</span>
+        </div>
+
+        <div id="modelSettings" class="hidden">
+          <div class="form-group">
+            <label for="modelFile">GLBファイルをアップロード</label>
+            <input type="file" id="modelFile" accept=".glb,.gltf" onchange="handleModelUpload(event)">
+            <small>Blenderでエクスポートした.glbファイルを選択してください</small>
+          </div>
+
+          <div id="modelPreview" class="model-preview hidden">
+            <strong>📦 アップロード済みモデル</strong>
+            <p id="modelFileName"></p>
+            <p id="modelFileSize"></p>
+          </div>
+
+          <div class="form-group">
+            <label>位置 (Position)</label>
+            <div class="grid-3">
+              <div>
+                <small>X (左右)</small>
+                <input type="number" id="posX" step="0.1" value="0">
+              </div>
+              <div>
+                <small>Y (上下)</small>
+                <input type="number" id="posY" step="0.1" value="0">
+              </div>
+              <div>
+                <small>Z (前後)</small>
+                <input type="number" id="posZ" step="0.1" value="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>スケール (Scale)</label>
+            <div class="grid-3">
+              <div>
+                <small>X</small>
+                <input type="number" id="scaleX" step="0.1" value="1">
+              </div>
+              <div>
+                <small>Y</small>
+                <input type="number" id="scaleY" step="0.1" value="1">
+              </div>
+              <div>
+                <small>Z</small>
+                <input type="number" id="scaleZ" step="0.1" value="1">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>回転 (Rotation - 度数)</label>
+            <div class="grid-3">
+              <div>
+                <small>X</small>
+                <input type="number" id="rotX" step="1" value="0">
+              </div>
+              <div>
+                <small>Y</small>
+                <input type="number" id="rotY" step="1" value="0">
+              </div>
+              <div>
+                <small>Z</small>
+                <input type="number" id="rotZ" step="1" value="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="toggle-group">
+            <label class="toggle-switch">
+              <input type="checkbox" id="animationEnabled" checked>
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-label">アニメーションを再生する</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BGM設定 -->
+      <div class="section">
+        <h2 class="section-title">🎵 BGM設定</h2>
+
+        <div class="toggle-group">
+          <label class="toggle-switch">
+            <input type="checkbox" id="bgmEnabled" onchange="toggleBgmSettings()">
+            <span class="slider"></span>
+          </label>
+          <span class="toggle-label">BGMを使用する</span>
+        </div>
+
+        <div id="bgmSettings" class="hidden">
+          <div class="form-group">
+            <label for="bgmUrl">BGM URL</label>
+            <input type="text" id="bgmUrl" placeholder="https://example.com/audio/bgm.mp3">
+            <small>MP3ファイルのURL（CDNやホスティングサービス）</small>
+          </div>
+
+          <div class="form-group">
+            <label for="bgmVolume">音量</label>
+            <input type="number" id="bgmVolume" min="0" max="1" step="0.1" value="0.5">
+            <small>0.0（無音）～ 1.0（最大音量）</small>
+          </div>
+
+          <div class="toggle-group">
+            <label class="toggle-switch">
+              <input type="checkbox" id="bgmLoop" checked>
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-label">ループ再生</span>
+          </div>
+
+          <div class="toggle-group">
+            <label class="toggle-switch">
+              <input type="checkbox" id="bgmAutoplay" checked>
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-label">自動再生</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 保存ボタン -->
+      <button class="btn btn-success" onclick="saveConfig()">💾 設定を保存してダウンロード</button>
+      <button class="btn btn-secondary" onclick="loadConfig()">🔄 現在の設定を読み込む</button>
+    </div>
+  </div>
+
+  <script src="/src/admin.js"></script>
+</body>
+</html>
