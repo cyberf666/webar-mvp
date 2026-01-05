@@ -316,20 +316,28 @@ window.saveConfig = async function() {
     }
 
     // 成功メッセージ
-    let successMsg = '設定ファイル（config.json）をダウンロードしました。\n\n配置先:\n';
-    successMsg += '- config.json → public/\n';
+    let successMsg = '✅ 設定ファイルをダウンロードしました！\n\n';
+    successMsg += '📂 次の手順で設定を反映してください:\n\n';
+    successMsg += '1️⃣ ダウンロードしたファイルを配置:\n';
+    successMsg += '   - config.json → public/\n';
 
     if (uploadedTargetImageFile) {
-      successMsg += `- ${uploadedTargetImageFile.name} → public/targets/\n`;
+      successMsg += `   - ${uploadedTargetImageFile.name} → public/targets/\n`;
     }
     if (uploadedTargetMindFile) {
-      successMsg += `- ${uploadedTargetMindFile.name} → public/targets/\n`;
+      successMsg += `   - ${uploadedTargetMindFile.name} → public/targets/\n`;
     }
     if (uploadedModelFile) {
-      successMsg += `- ${uploadedModelFile.name} → public/models/\n`;
+      successMsg += `   - ${uploadedModelFile.name} → public/models/\n`;
     }
 
-    successMsg += '\nファイルを配置後、Gitにコミット＆プッシュしてください。';
+    successMsg += '\n2️⃣ Gitでコミット＆プッシュ:\n';
+    successMsg += '   git add .\n';
+    successMsg += '   git commit -m "Update AR config"\n';
+    successMsg += '   git push\n\n';
+    successMsg += '3️⃣ Vercelが自動デプロイ（約1分）\n';
+    successMsg += '4️⃣ QRコードページを更新して確認';
+
     showSuccess(successMsg);
 
     currentConfig = config;
@@ -346,9 +354,10 @@ function showSuccess(message) {
   div.textContent = message;
   div.classList.remove('hidden');
 
+  // 手順説明が長いので15秒表示
   setTimeout(() => {
     div.classList.add('hidden');
-  }, 8000);
+  }, 15000);
 }
 
 function showError(message) {
@@ -367,10 +376,21 @@ window.generateQRCode = async function() {
     // まず設定を保存
     await saveConfig();
 
-    // 少し待ってからQRコードページを開く
-    setTimeout(() => {
+    // 確認ダイアログを表示
+    const shouldOpen = confirm(
+      '⚠️ 重要な確認\n\n' +
+      'QRコードページには現在デプロイされている設定が表示されます。\n\n' +
+      '今ダウンロードした設定を反映するには:\n' +
+      '1. ファイルをpublic/フォルダに配置\n' +
+      '2. Gitにコミット＆プッシュ\n' +
+      '3. Vercelのデプロイ完了を待つ（約1分）\n\n' +
+      'まだデプロイしていない場合、QRコードには古い設定が表示されます。\n\n' +
+      'QRコードページを開きますか？'
+    );
+
+    if (shouldOpen) {
       window.open('/qr-code.html', '_blank');
-    }, 500);
+    }
   } catch (error) {
     console.error('QRコード生成エラー:', error);
     showError('設定の保存に失敗しました。QRコードを生成できません。');
