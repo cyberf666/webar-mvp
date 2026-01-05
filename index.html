@@ -165,6 +165,7 @@
       -->
 
       <!-- タップ領域（透明ボックス） -->
+      <!-- config.jsonから読み込んだURLを動的に設定するため、JavaScriptで生成 -->
       <a-box
         id="tap-area"
         position="0 0.2 0.1"
@@ -172,8 +173,7 @@
         height="1.2"
         depth="0.2"
         opacity="0"
-        class="clickable"
-        tap-to-url="url: https://example.com">
+        class="clickable">
       </a-box>
 
       <!-- ========== オプション3: デフォルトエフェクト（非表示） ========== -->

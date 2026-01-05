@@ -14,6 +14,14 @@ async function loadConfig() {
 
       // URLを更新
       CONFIG.targetURL = config.ar.targetUrl;
+      console.log('[CONFIG] 遷移先URL設定:', CONFIG.targetURL);
+
+      // タップ領域のURLを更新
+      const tapArea = document.getElementById('tap-area');
+      if (tapArea) {
+        tapArea.setAttribute('tap-to-url', `url: ${CONFIG.targetURL}`);
+        console.log('[CONFIG] タップ領域のURL更新完了');
+      }
 
       // 3Dモデルを表示
       if (config.ar.model.enabled) {
