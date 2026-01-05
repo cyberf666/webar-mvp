@@ -361,6 +361,22 @@ function showError(message) {
   }, 5000);
 }
 
+// ========== QRコード生成（設定を保存してから開く） ==========
+window.generateQRCode = async function() {
+  try {
+    // まず設定を保存
+    await saveConfig();
+
+    // 少し待ってからQRコードページを開く
+    setTimeout(() => {
+      window.open('/qr-code.html', '_blank');
+    }, 500);
+  } catch (error) {
+    console.error('QRコード生成エラー:', error);
+    showError('設定の保存に失敗しました。QRコードを生成できません。');
+  }
+}
+
 // ========== Enterキーでログイン ==========
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('password')?.addEventListener('keypress', (e) => {
