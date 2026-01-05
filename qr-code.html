@@ -186,13 +186,28 @@
     // 設定を読み込んでQRコードを生成
     async function loadConfigAndGenerateQR() {
       try {
-        // config.jsonを読み込み
-        const response = await fetch('/config.json');
-        if (!response.ok) {
-          throw new Error('設定ファイルが見つかりません');
+        let config;
+
+        // まずAPIから設定を取得
+        try {
+          const apiResponse = await fetch('/api/get-config');
+          if (apiResponse.ok) {
+            config = await apiResponse.json();
+            console.log('[QR] APIから設定読み込み成功:', config);
+          }
+        } catch (apiError) {
+          console.warn('[QR] API読み込み失敗、config.jsonから読み込みます:', apiError);
         }
 
-        const config = await response.json();
+        // フォールバック: config.jsonを読み込み
+        if (!config) {
+          const response = await fetch('/config.json');
+          if (!response.ok) {
+            throw new Error('設定ファイルが見つかりません');
+          }
+          config = await response.json();
+          console.log('[QR] config.jsonから設定読み込み成功:', config);
+        }
 
         // AR画面のURL
         const protocol = window.location.protocol;

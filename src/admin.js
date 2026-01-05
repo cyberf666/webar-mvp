@@ -29,12 +29,30 @@ window.logout = function() {
 // ========== 設定の読み込み ==========
 window.loadConfig = async function() {
   try {
-    const response = await fetch('/config.json');
-    if (!response.ok) {
-      throw new Error('設定ファイルの読み込みに失敗しました');
+    let config;
+
+    // まずAPIから設定を取得
+    try {
+      const apiResponse = await fetch('/api/get-config');
+      if (apiResponse.ok) {
+        config = await apiResponse.json();
+        console.log('[ADMIN] APIから設定読み込み成功:', config);
+      }
+    } catch (apiError) {
+      console.warn('[ADMIN] API読み込み失敗、config.jsonから読み込みます:', apiError);
     }
 
-    currentConfig = await response.json();
+    // フォールバック: config.jsonを読み込み
+    if (!config) {
+      const response = await fetch('/config.json');
+      if (!response.ok) {
+        throw new Error('設定ファイルの読み込みに失敗しました');
+      }
+      config = await response.json();
+      console.log('[ADMIN] config.jsonから設定読み込み成功:', config);
+    }
+
+    currentConfig = config;
     applyConfigToForm(currentConfig);
 
     showSuccess('設定を読み込みました');
