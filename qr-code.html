@@ -1,31 +1,238 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>QRコード - WebAR MVP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR体験用QRコード - WebAR MVP</title>
   <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 50px;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      padding: 50px;
+      text-align: center;
+      max-width: 600px;
+    }
+
+    h1 {
+      font-size: 32px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 16px;
+      margin-bottom: 40px;
+    }
+
+    .qr-wrapper {
+      background: #f8f9fa;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      display: inline-block;
+    }
+
     #qr {
-      margin: 20px auto;
+      margin: 0 auto;
+    }
+
+    .url-display {
+      background: #e3f2fd;
+      border: 2px solid #2196f3;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 25px;
+      word-break: break-all;
+      color: #1565c0;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .info-box {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    .info-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #856404;
+    }
+
+    .info-box p {
+      color: #856404;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .target-info {
+      background: #d4edda;
+      border-left: 4px solid #28a745;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    .target-info strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #155724;
+    }
+
+    .target-info p {
+      color: #155724;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin: 10px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .container {
+        box-shadow: none;
+      }
+
+      .btn {
+        display: none;
+      }
+    }
+
+    .loading {
+      color: #666;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <h1>WebAR MVP アクセス用QRコード</h1>
-  <p>スマホでスキャンしてください</p>
-  <div id="qr"></div>
-  <p>URL: <strong>http://192.168.151.219:5173/</strong></p>
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <div class="container">
+    <h1>🎯 AR体験用QRコード</h1>
+    <p class="subtitle">QRコードをスキャンしてAR体験を開始</p>
+
+    <div class="qr-wrapper">
+      <div id="qr"><p class="loading">読み込み中...</p></div>
+    </div>
+
+    <div class="url-display" id="ar-url">読み込み中...</div>
+
+    <div class="target-info">
+      <strong>🎯 遷移先URL</strong>
+      <p id="target-url">読み込み中...</p>
+    </div>
+
+    <div class="info-box">
+      <strong>📱 使い方</strong>
+      <p>1. スマートフォンのカメラでQRコードをスキャン<br>
+         2. ARページが開いたらカメラへのアクセスを許可<br>
+         3. ターゲット画像にスマホをかざす<br>
+         4. 画面をタップして設定されたURLに移動</p>
+    </div>
+
+    <button class="btn" onclick="window.print()">印刷する</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
-    new QRCode(document.getElementById("qr"), {
-      text: "http://192.168.151.219:5173/",
-      width: 256,
-      height: 256
-    });
+    // 設定を読み込んでQRコードを生成
+    async function loadConfigAndGenerateQR() {
+      try {
+        // config.jsonを読み込み
+        const response = await fetch('/config.json');
+        if (!response.ok) {
+          throw new Error('設定ファイルが見つかりません');
+        }
+
+        const config = await response.json();
+
+        // AR画面のURL
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        const arUrl = `${protocol}//${host}/`;
+
+        // URLを表示
+        document.getElementById('ar-url').textContent = arUrl;
+        document.getElementById('target-url').textContent = config.ar.targetUrl;
+
+        // QRコードを生成
+        document.getElementById('qr').innerHTML = '';
+        new QRCode(document.getElementById('qr'), {
+          text: arUrl,
+          width: 256,
+          height: 256,
+          colorDark: '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.H
+        });
+
+      } catch (error) {
+        console.error('設定の読み込みに失敗:', error);
+
+        // エラー時はデフォルトURLでQRコード生成
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        const defaultUrl = `${protocol}//${host}/`;
+
+        document.getElementById('ar-url').textContent = defaultUrl;
+        document.getElementById('target-url').textContent = 'デフォルトURL（設定ファイルが読み込めませんでした）';
+
+        document.getElementById('qr').innerHTML = '';
+        new QRCode(document.getElementById('qr'), {
+          text: defaultUrl,
+          width: 256,
+          height: 256,
+          colorDark: '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      }
+    }
+
+    // ページ読み込み時に実行
+    loadConfigAndGenerateQR();
   </script>
 </body>
 </html>

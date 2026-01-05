@@ -463,6 +463,14 @@
       <!-- 保存ボタン -->
       <button class="btn btn-success" onclick="saveConfig()">💾 設定を保存してダウンロード</button>
       <button class="btn btn-secondary" onclick="loadConfig()">🔄 現在の設定を読み込む</button>
+
+      <div style="margin-top: 30px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+        <h3 style="margin-bottom: 15px; color: #333;">📱 QRコード生成</h3>
+        <p style="color: #666; margin-bottom: 15px; font-size: 14px;">設定を保存後、QRコードを生成できます</p>
+        <button class="btn" onclick="window.open('/qr-code.html', '_blank')" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+          📱 AR体験用QRコードを生成
+        </button>
+      </div>
     </div>
   </div>
 
