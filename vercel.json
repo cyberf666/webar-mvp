@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/qr-admin", "destination": "/qr-admin.html" },
+    { "source": "/qr-code", "destination": "/qr-code.html" }
+  ]
+}
