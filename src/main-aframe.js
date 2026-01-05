@@ -7,10 +7,45 @@ let BGM_AUDIO = null;
 // ========== 設定ファイルを読み込み ==========
 async function loadConfig() {
   try {
+    // まずAPIから設定を取得（優先）
+    try {
+      const apiResponse = await fetch('/api/get-config');
+      if (apiResponse.ok) {
+        const config = await apiResponse.json();
+        console.log('[CONFIG] API から設定読み込み成功:', config);
+
+        // URLを更新
+        CONFIG.targetURL = config.ar.targetUrl;
+        console.log('[CONFIG] 遷移先URL設定:', CONFIG.targetURL);
+
+        // タップ領域のURLを更新
+        const tapArea = document.getElementById('tap-area');
+        if (tapArea) {
+          tapArea.setAttribute('tap-to-url', `url: ${CONFIG.targetURL}`);
+          console.log('[CONFIG] タップ領域のURL更新完了');
+        }
+
+        // 3Dモデルを表示
+        if (config.ar.model.enabled) {
+          showModel(config.ar.model);
+        }
+
+        // BGMを設定
+        if (config.ar.bgm.enabled && config.ar.bgm.url) {
+          setupBGM(config.ar.bgm);
+        }
+
+        return config;
+      }
+    } catch (apiError) {
+      console.warn('[CONFIG] API読み込み失敗、config.jsonから読み込みます:', apiError);
+    }
+
+    // フォールバック: config.jsonから読み込み
     const response = await fetch('/config.json');
     if (response.ok) {
       const config = await response.json();
-      console.log('[CONFIG] 設定ファイル読み込み成功:', config);
+      console.log('[CONFIG] config.jsonから設定読み込み成功:', config);
 
       // URLを更新
       CONFIG.targetURL = config.ar.targetUrl;

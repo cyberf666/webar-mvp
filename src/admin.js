@@ -273,73 +273,48 @@ window.saveConfig = async function() {
       }
     };
 
-    // JSONファイルとしてダウンロード
-    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'config.json';
-    a.click();
-    URL.revokeObjectURL(url);
+    // APIに送信して保存
+    const response = await fetch('/api/save-config', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ password: PASSWORD, config })
+    });
 
-    // ターゲット画像をダウンロード
-    if (uploadedTargetImageFile) {
-      const imageBlob = new Blob([uploadedTargetImageFile], { type: uploadedTargetImageFile.type });
-      const imageUrl = URL.createObjectURL(imageBlob);
-      const imageLink = document.createElement('a');
-      imageLink.href = imageUrl;
-      imageLink.download = uploadedTargetImageFile.name;
-      imageLink.click();
-      URL.revokeObjectURL(imageUrl);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || '設定の保存に失敗しました');
     }
 
-    // .mindファイルをダウンロード
-    if (uploadedTargetMindFile) {
-      const mindBlob = new Blob([uploadedTargetMindFile], { type: 'application/octet-stream' });
-      const mindUrl = URL.createObjectURL(mindBlob);
-      const mindLink = document.createElement('a');
-      mindLink.href = mindUrl;
-      mindLink.download = uploadedTargetMindFile.name;
-      mindLink.click();
-      URL.revokeObjectURL(mindUrl);
-    }
+    const result = await response.json();
+    console.log('[SAVE] 設定をサーバーに保存しました:', result);
 
-    // モデルファイルもダウンロード
-    if (uploadedModelFile) {
-      const modelBlob = new Blob([uploadedModelFile], { type: 'model/gltf-binary' });
-      const modelUrl = URL.createObjectURL(modelBlob);
-      const modelLink = document.createElement('a');
-      modelLink.href = modelUrl;
-      modelLink.download = uploadedModelFile.name;
-      modelLink.click();
-      URL.revokeObjectURL(modelUrl);
-    }
+    // ファイルのアップロードが必要な場合は警告
+    let successMsg = '✅ 設定を保存しました！即座に反映されます。\n\n';
 
-    // 成功メッセージ
-    let successMsg = '✅ 設定ファイルをダウンロードしました！\n\n';
-    successMsg += '📂 次の手順で設定を反映してください:\n\n';
-    successMsg += '1️⃣ ダウンロードしたファイルを配置:\n';
-    successMsg += '   - config.json → public/\n';
+    if (uploadedTargetImageFile || uploadedTargetMindFile || uploadedModelFile) {
+      successMsg += '⚠️ アップロードしたファイルの配置が必要です:\n\n';
 
-    if (uploadedTargetImageFile) {
-      successMsg += `   - ${uploadedTargetImageFile.name} → public/targets/\n`;
-    }
-    if (uploadedTargetMindFile) {
-      successMsg += `   - ${uploadedTargetMindFile.name} → public/targets/\n`;
-    }
-    if (uploadedModelFile) {
-      successMsg += `   - ${uploadedModelFile.name} → public/models/\n`;
-    }
+      if (uploadedTargetImageFile) {
+        successMsg += `📁 ${uploadedTargetImageFile.name} → public/targets/\n`;
+      }
+      if (uploadedTargetMindFile) {
+        successMsg += `📁 ${uploadedTargetMindFile.name} → public/targets/\n`;
+      }
+      if (uploadedModelFile) {
+        successMsg += `📁 ${uploadedModelFile.name} → public/models/\n`;
+      }
 
-    successMsg += '\n2️⃣ Gitでコミット＆プッシュ:\n';
-    successMsg += '   git add .\n';
-    successMsg += '   git commit -m "Update AR config"\n';
-    successMsg += '   git push\n\n';
-    successMsg += '3️⃣ Vercelが自動デプロイ（約1分）\n';
-    successMsg += '4️⃣ QRコードページを更新して確認';
+      successMsg += '\nGitでコミット＆プッシュしてください:\n';
+      successMsg += '  git add .\n';
+      successMsg += '  git commit -m "Add AR assets"\n';
+      successMsg += '  git push\n';
+    } else {
+      successMsg += '🎉 すぐにQRコードを生成できます！';
+    }
 
     showSuccess(successMsg);
-
     currentConfig = config;
 
   } catch (error) {
@@ -376,21 +351,12 @@ window.generateQRCode = async function() {
     // まず設定を保存
     await saveConfig();
 
-    // 確認ダイアログを表示
-    const shouldOpen = confirm(
-      '⚠️ 重要な確認\n\n' +
-      'QRコードページには現在デプロイされている設定が表示されます。\n\n' +
-      '今ダウンロードした設定を反映するには:\n' +
-      '1. ファイルをpublic/フォルダに配置\n' +
-      '2. Gitにコミット＆プッシュ\n' +
-      '3. Vercelのデプロイ完了を待つ（約1分）\n\n' +
-      'まだデプロイしていない場合、QRコードには古い設定が表示されます。\n\n' +
-      'QRコードページを開きますか？'
-    );
-
-    if (shouldOpen) {
+    // 保存成功後、すぐにQRコードページを開く
+    setTimeout(() => {
       window.open('/qr-code.html', '_blank');
-    }
+      showSuccess('QRコードページを開きました！\n設定は即座に反映されています。');
+    }, 500);
+
   } catch (error) {
     console.error('QRコード生成エラー:', error);
     showError('設定の保存に失敗しました。QRコードを生成できません。');
