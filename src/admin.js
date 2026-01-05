@@ -1,6 +1,8 @@
 // ========== 定数 ==========
 const PASSWORD = 'admin123'; // 本番環境では環境変数から読み込むことを推奨
 let uploadedModelFile = null;
+let uploadedTargetImageFile = null;
+let uploadedTargetMindFile = null;
 let currentConfig = null;
 
 // ========== 認証 ==========
@@ -147,6 +149,85 @@ window.handleModelUpload = function(event) {
   showSuccess(`モデルファイル "${file.name}" を選択しました`);
 }
 
+// ========== ターゲット画像のアップロード ==========
+window.handleTargetImageUpload = function(event) {
+  const file = event.target.files[0];
+
+  if (!file) {
+    return;
+  }
+
+  // ファイルタイプチェック
+  if (!file.type.match(/image\/(png|jpeg|jpg)/)) {
+    showError('PNG、JPG、またはJPEG画像を選択してください');
+    return;
+  }
+
+  // ファイルサイズチェック（5MB制限）
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  if (file.size > maxSize) {
+    showError('画像サイズが大きすぎます（最大5MB）');
+    return;
+  }
+
+  uploadedTargetImageFile = file;
+
+  // プレビュー表示
+  const preview = document.getElementById('targetImagePreview');
+  const fileName = document.getElementById('targetImageFileName');
+  const fileSize = document.getElementById('targetImageFileSize');
+  const previewImg = document.getElementById('targetImagePreviewImg');
+
+  fileName.textContent = `ファイル名: ${file.name}`;
+  fileSize.textContent = `サイズ: ${(file.size / 1024).toFixed(2)} KB`;
+
+  // 画像プレビュー
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    previewImg.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+
+  preview.classList.remove('hidden');
+
+  showSuccess(`ターゲット画像 "${file.name}" を選択しました`);
+}
+
+// ========== .mindファイルのアップロード ==========
+window.handleTargetMindUpload = function(event) {
+  const file = event.target.files[0];
+
+  if (!file) {
+    return;
+  }
+
+  // ファイル拡張子チェック
+  if (!file.name.endsWith('.mind')) {
+    showError('.mindファイルを選択してください');
+    return;
+  }
+
+  // ファイルサイズチェック（10MB制限）
+  const maxSize = 10 * 1024 * 1024; // 10MB
+  if (file.size > maxSize) {
+    showError('ファイルサイズが大きすぎます（最大10MB）');
+    return;
+  }
+
+  uploadedTargetMindFile = file;
+
+  // プレビュー表示
+  const preview = document.getElementById('targetMindPreview');
+  const fileName = document.getElementById('targetMindFileName');
+  const fileSize = document.getElementById('targetMindFileSize');
+
+  fileName.textContent = `ファイル名: ${file.name}`;
+  fileSize.textContent = `サイズ: ${(file.size / 1024).toFixed(2)} KB`;
+  preview.classList.remove('hidden');
+
+  showSuccess(`.mindファイル "${file.name}" を選択しました`);
+}
+
 // ========== 設定の保存 ==========
 window.saveConfig = async function() {
   try {
@@ -157,8 +238,8 @@ window.saveConfig = async function() {
       ar: {
         targetUrl: document.getElementById('targetUrl').value,
         target: {
-          imageUrl: document.getElementById('targetImageUrl').value,
-          mindUrl: document.getElementById('targetMindUrl').value
+          imageUrl: uploadedTargetImageFile ? `/targets/${uploadedTargetImageFile.name}` : (currentConfig?.ar.target?.imageUrl || '/targets/target.png'),
+          mindUrl: uploadedTargetMindFile ? `/targets/${uploadedTargetMindFile.name}` : (currentConfig?.ar.target?.mindUrl || '/targets/target.mind')
         },
         model: {
           enabled: document.getElementById('modelEnabled').checked,
@@ -201,6 +282,28 @@ window.saveConfig = async function() {
     a.click();
     URL.revokeObjectURL(url);
 
+    // ターゲット画像をダウンロード
+    if (uploadedTargetImageFile) {
+      const imageBlob = new Blob([uploadedTargetImageFile], { type: uploadedTargetImageFile.type });
+      const imageUrl = URL.createObjectURL(imageBlob);
+      const imageLink = document.createElement('a');
+      imageLink.href = imageUrl;
+      imageLink.download = uploadedTargetImageFile.name;
+      imageLink.click();
+      URL.revokeObjectURL(imageUrl);
+    }
+
+    // .mindファイルをダウンロード
+    if (uploadedTargetMindFile) {
+      const mindBlob = new Blob([uploadedTargetMindFile], { type: 'application/octet-stream' });
+      const mindUrl = URL.createObjectURL(mindBlob);
+      const mindLink = document.createElement('a');
+      mindLink.href = mindUrl;
+      mindLink.download = uploadedTargetMindFile.name;
+      mindLink.click();
+      URL.revokeObjectURL(mindUrl);
+    }
+
     // モデルファイルもダウンロード
     if (uploadedModelFile) {
       const modelBlob = new Blob([uploadedModelFile], { type: 'model/gltf-binary' });
@@ -210,11 +313,24 @@ window.saveConfig = async function() {
       modelLink.download = uploadedModelFile.name;
       modelLink.click();
       URL.revokeObjectURL(modelUrl);
-
-      showSuccess(`設定ファイル（config.json）とモデルファイル（${uploadedModelFile.name}）をダウンロードしました。\n\nconfig.json を public/ に、${uploadedModelFile.name} を public/models/ に配置してGitにコミット＆プッシュしてください。`);
-    } else {
-      showSuccess('設定ファイル（config.json）をダウンロードしました。\n\npublic/config.json を上書きしてGitにコミット＆プッシュしてください。');
     }
+
+    // 成功メッセージ
+    let successMsg = '設定ファイル（config.json）をダウンロードしました。\n\n配置先:\n';
+    successMsg += '- config.json → public/\n';
+
+    if (uploadedTargetImageFile) {
+      successMsg += `- ${uploadedTargetImageFile.name} → public/targets/\n`;
+    }
+    if (uploadedTargetMindFile) {
+      successMsg += `- ${uploadedTargetMindFile.name} → public/targets/\n`;
+    }
+    if (uploadedModelFile) {
+      successMsg += `- ${uploadedModelFile.name} → public/models/\n`;
+    }
+
+    successMsg += '\nファイルを配置後、Gitにコミット＆プッシュしてください。';
+    showSuccess(successMsg);
 
     currentConfig = config;
 
