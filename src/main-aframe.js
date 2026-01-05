@@ -188,30 +188,76 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }, 2000);
 
-  // 画面全体のタップを検知（最終手段）
+  // 画面全体のタップを検知（最終手段） - 複数の要素にリスナーを追加
+  let isTargetFound = false;
+
+  // ターゲット検出状態を追跡
+  target.addEventListener('targetFound', () => {
+    isTargetFound = true;
+  });
+
+  target.addEventListener('targetLost', () => {
+    isTargetFound = false;
+  });
+
+  // タップイベントハンドラー
+  const handleTap = (e) => {
+    // ターゲットが検出されている時のみURL遷移
+    if (!isTargetFound) {
+      console.log('[TAP] ターゲット未検出のためスキップ');
+      return;
+    }
+
+    console.log('[TAP] 画面タップ検知 -> URL遷移');
+    e.preventDefault();
+    e.stopPropagation();
+
+    // BGM再生を試みる（ユーザーインタラクション）
+    if (BGM_AUDIO && BGM_AUDIO.paused) {
+      BGM_AUDIO.play().catch(err => console.warn('[BGM] 再生失敗:', err));
+    }
+
+    // URL遷移
+    const targetUrl = CONFIG.targetURL;
+    console.log('[TAP] URL遷移:', targetUrl);
+
+    // 少し遅延させて確実に遷移
+    setTimeout(() => {
+      window.location.href = targetUrl;
+    }, 100);
+  };
+
+  // 複数の要素にタップリスナーを追加
   const sceneCanvas = document.querySelector('a-scene canvas');
+  const sceneElement = document.querySelector('a-scene');
+  const tapIndicatorEl = document.getElementById('tap-indicator');
+
   if (sceneCanvas) {
-    sceneCanvas.addEventListener('touchend', (e) => {
-      console.log('[FALLBACK] 画面タップ検知 -> URL遷移');
-
-      // BGM再生を試みる（ユーザーインタラクション）
-      if (BGM_AUDIO && BGM_AUDIO.paused) {
-        BGM_AUDIO.play().catch(err => console.warn('[BGM] 再生失敗:', err));
-      }
-
-      // URL遷移
-      const clickables = document.querySelectorAll('.clickable');
-      if (clickables.length > 0) {
-        const url = clickables[0].getAttribute('tap-to-url');
-        if (url) {
-          console.log('[FALLBACK] URL遷移:', url);
-          window.location.href = url;
-        }
-      } else {
-        // clickableがない場合はCONFIGのURLを使用
-        console.log('[FALLBACK] CONFIG URL遷移:', CONFIG.targetURL);
-        window.location.href = CONFIG.targetURL;
-      }
-    });
+    sceneCanvas.addEventListener('touchend', handleTap);
+    sceneCanvas.addEventListener('click', handleTap);
+    console.log('[INIT] Canvas タップリスナー登録完了');
   }
+
+  if (sceneElement) {
+    sceneElement.addEventListener('touchend', handleTap);
+    sceneElement.addEventListener('click', handleTap);
+    console.log('[INIT] Scene タップリスナー登録完了');
+  }
+
+  if (tapIndicatorEl) {
+    tapIndicatorEl.addEventListener('touchend', handleTap);
+    tapIndicatorEl.addEventListener('click', handleTap);
+    // タップインジケーター自体もクリック可能にする
+    tapIndicatorEl.style.pointerEvents = 'auto';
+    console.log('[INIT] TapIndicator タップリスナー登録完了');
+  }
+
+  // body全体にもリスナーを追加（最終フォールバック）
+  document.body.addEventListener('touchend', (e) => {
+    if (isTargetFound && e.target.closest('a-scene, #tap-indicator')) {
+      handleTap(e);
+    }
+  });
+
+  console.log('[INIT] 全タップリスナー登録完了');
 });
