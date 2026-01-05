@@ -4,7 +4,7 @@ let uploadedModelFile = null;
 let currentConfig = null;
 
 // ========== 認証 ==========
-function login() {
+window.login = function() {
   const password = document.getElementById('password').value;
   const errorDiv = document.getElementById('login-error');
 
@@ -18,14 +18,14 @@ function login() {
   }
 }
 
-function logout() {
+window.logout = function() {
   document.getElementById('admin-screen').classList.add('hidden');
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('password').value = '';
 }
 
 // ========== 設定の読み込み ==========
-async function loadConfig() {
+window.loadConfig = async function() {
   try {
     const response = await fetch('/config.json');
     if (!response.ok) {
@@ -83,7 +83,7 @@ function applyConfigToForm(config) {
 }
 
 // ========== 3Dモデル設定のトグル ==========
-function toggleModelSettings() {
+window.toggleModelSettings = function() {
   const enabled = document.getElementById('modelEnabled').checked;
   const settings = document.getElementById('modelSettings');
 
@@ -95,7 +95,7 @@ function toggleModelSettings() {
 }
 
 // ========== BGM設定のトグル ==========
-function toggleBgmSettings() {
+window.toggleBgmSettings = function() {
   const enabled = document.getElementById('bgmEnabled').checked;
   const settings = document.getElementById('bgmSettings');
 
@@ -107,7 +107,7 @@ function toggleBgmSettings() {
 }
 
 // ========== モデルファイルのアップロード ==========
-function handleModelUpload(event) {
+window.handleModelUpload = function(event) {
   const file = event.target.files[0];
 
   if (!file) {
@@ -142,7 +142,7 @@ function handleModelUpload(event) {
 }
 
 // ========== 設定の保存 ==========
-async function saveConfig() {
+window.saveConfig = async function() {
   try {
     // フォームから設定を収集
     const config = {
