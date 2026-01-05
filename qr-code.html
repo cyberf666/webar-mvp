@@ -164,6 +164,12 @@
       <p id="target-url">読み込み中...</p>
     </div>
 
+    <div class="target-info" id="target-image-section" style="display: none;">
+      <strong>🖼️ ターゲット画像</strong>
+      <p style="margin-bottom: 10px;">この画像にスマホをかざしてください</p>
+      <img id="target-image" src="" alt="ターゲット画像" style="max-width: 100%; border-radius: 8px; border: 2px solid #28a745; margin-top: 10px;">
+    </div>
+
     <div class="info-box">
       <strong>📱 使い方</strong>
       <p>1. スマートフォンのカメラでQRコードをスキャン<br>
@@ -196,6 +202,18 @@
         // URLを表示
         document.getElementById('ar-url').textContent = arUrl;
         document.getElementById('target-url').textContent = config.ar.targetUrl;
+
+        // ターゲット画像を表示
+        if (config.ar.target && config.ar.target.imageUrl) {
+          const targetImageSection = document.getElementById('target-image-section');
+          const targetImage = document.getElementById('target-image');
+          const imageUrl = config.ar.target.imageUrl.startsWith('http')
+            ? config.ar.target.imageUrl
+            : `${protocol}//${host}${config.ar.target.imageUrl}`;
+
+          targetImage.src = imageUrl;
+          targetImageSection.style.display = 'block';
+        }
 
         // QRコードを生成
         document.getElementById('qr').innerHTML = '';

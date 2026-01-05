@@ -3,6 +3,10 @@
   "lastUpdated": "2026-01-03T00:00:00.000Z",
   "ar": {
     "targetUrl": "https://example.com",
+    "target": {
+      "imageUrl": "/targets/target.png",
+      "mindUrl": "/targets/target.mind"
+    },
     "model": {
       "enabled": false,
       "url": "/models/model.glb",

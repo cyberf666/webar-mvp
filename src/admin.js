@@ -46,6 +46,12 @@ function applyConfigToForm(config) {
   // リンク先
   document.getElementById('targetUrl').value = config.ar.targetUrl || '';
 
+  // ターゲット画像
+  if (config.ar.target) {
+    document.getElementById('targetImageUrl').value = config.ar.target.imageUrl || '/targets/target.png';
+    document.getElementById('targetMindUrl').value = config.ar.target.mindUrl || '/targets/target.mind';
+  }
+
   // 3Dモデル
   const modelEnabled = config.ar.model.enabled || false;
   document.getElementById('modelEnabled').checked = modelEnabled;
@@ -150,6 +156,10 @@ window.saveConfig = async function() {
       lastUpdated: new Date().toISOString(),
       ar: {
         targetUrl: document.getElementById('targetUrl').value,
+        target: {
+          imageUrl: document.getElementById('targetImageUrl').value,
+          mindUrl: document.getElementById('targetMindUrl').value
+        },
         model: {
           enabled: document.getElementById('modelEnabled').checked,
           url: uploadedModelFile ? `/models/${uploadedModelFile.name}` : (currentConfig?.ar.model.url || '/models/model.glb'),
