@@ -297,7 +297,7 @@ window.saveConfig = async function() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ password: PASSWORD, config })
+      body: JSON.stringify(config)
     });
 
     if (!response.ok) {

@@ -1,5 +1,5 @@
-// Vercel KVを使った設定保存API
-import { kv } from '@vercel/kv';
+// Supabaseに設定を保存するAPI
+import { supabase } from './supabaseClient.js';
 
 export default async function handler(req, res) {
   // CORSヘッダーを設定
@@ -18,23 +18,40 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { password, config } = req.body;
+    const config = req.body;
 
-    // パスワード認証（簡易版）
-    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
-    if (password !== ADMIN_PASSWORD) {
-      return res.status(401).json({ error: 'Unauthorized' });
+    // 設定の妥当性チェック
+    if (!config || !config.ar || !config.ar.targetUrl) {
+      return res.status(400).json({
+        error: 'Invalid config format',
+        message: 'Config must include ar.targetUrl'
+      });
     }
 
-    // 設定をVercel KVに保存
-    await kv.set('ar-config', config);
+    // lastUpdatedを更新
+    config.lastUpdated = new Date().toISOString();
+
+    // Supabaseに保存（upsert: 存在すれば更新、なければ挿入）
+    const { data, error } = await supabase
+      .from('ar_config')
+      .upsert({
+        id: 1,
+        config: config,
+        updated_at: config.lastUpdated
+      }, {
+        onConflict: 'id'
+      })
+      .select();
+
+    if (error) {
+      throw error;
+    }
 
     console.log('[API] 設定を保存しました:', new Date().toISOString());
-
     return res.status(200).json({
       success: true,
       message: '設定を保存しました',
-      timestamp: new Date().toISOString()
+      config: config
     });
 
   } catch (error) {

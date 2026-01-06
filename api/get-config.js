@@ -1,5 +1,5 @@
-// Vercel KVから設定を読み込むAPI
-import { kv } from '@vercel/kv';
+// Supabaseから設定を読み込むAPI
+import { supabase } from './supabaseClient.js';
 
 export default async function handler(req, res) {
   // CORSヘッダーを設定
@@ -18,11 +18,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Vercel KVから設定を取得
-    const config = await kv.get('ar-config');
+    // Supabaseから設定を取得
+    const { data, error } = await supabase
+      .from('ar_config')
+      .select('config')
+      .eq('id', 1)
+      .single();
 
     // 設定が存在しない場合はデフォルト設定を返す
-    if (!config) {
+    if (error && error.code === 'PGRST116') {
       const defaultConfig = {
         version: "1.0.0",
         lastUpdated: new Date().toISOString(),
@@ -54,8 +58,12 @@ export default async function handler(req, res) {
       return res.status(200).json(defaultConfig);
     }
 
+    if (error) {
+      throw error;
+    }
+
     console.log('[API] 設定を読み込みました:', new Date().toISOString());
-    return res.status(200).json(config);
+    return res.status(200).json(data.config);
 
   } catch (error) {
     console.error('[API] エラー:', error);

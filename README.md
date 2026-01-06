@@ -62,6 +62,73 @@ npm run build
 
 **自動HTTPS化**: Vercelは自動的にHTTPSを提供します。
 
+### Supabase（設定保存用データベース）のセットアップ
+
+管理画面で設定した内容を保存し、QRコードからアクセスした全ユーザーに共通の設定を配信するために、Supabaseをセットアップする必要があります。
+
+#### 1. Supabaseプロジェクトの作成
+
+1. **[Supabase](https://supabase.com/)にアクセスしてサインアップ**
+2. **「New Project」をクリック**
+3. **プロジェクト情報を入力**:
+   - Organization: 既存のものを選択、または新規作成
+   - Name: 任意のプロジェクト名（例: `webar-mvp`）
+   - Database Password: 強固なパスワードを設定（メモしておく）
+   - Region: 最も近い地域を選択（例: Northeast Asia (Tokyo)）
+4. **「Create new project」をクリック**（プロジェクト作成に1-2分かかります）
+
+#### 2. データベーステーブルの作成
+
+1. **左サイドバーの「Table Editor」をクリック**
+2. **「Create a new table」をクリック**
+3. **テーブル情報を入力**:
+   - Name: `ar_config`
+   - Description: AR設定を保存するテーブル
+   - Enable Row Level Security (RLS): **無効にする**（チェックを外す）
+4. **カラムを追加**:
+   - `id` (int8, Primary Key) - デフォルトで作成済み
+   - `config` (jsonb, nullable) - 「Add column」で追加
+   - `updated_at` (timestamptz, nullable) - 「Add column」で追加
+5. **「Save」をクリック**
+
+#### 3. 環境変数の設定
+
+1. **Supabaseプロジェクトの「Settings」→「API」を開く**
+2. **以下の値をコピー**:
+   - **Project URL** (例: `https://xxxxx.supabase.co`)
+   - **anon/public key** (例: `eyJhbGc...`)
+
+3. **Vercelプロジェクトの環境変数に設定**:
+   - Vercelプロジェクトページの「Settings」→「Environment Variables」を開く
+   - 以下の環境変数を追加:
+     - `SUPABASE_URL`: Supabaseの Project URL
+     - `SUPABASE_ANON_KEY`: Supabaseの anon/public key
+   - 「Production」「Preview」「Development」すべてにチェックを入れる
+   - 「Save」をクリック
+
+4. **再デプロイ**:
+   - 環境変数を設定後、Vercelで再デプロイが必要です
+   - 「Deployments」タブで最新のデプロイを開き、「Redeploy」をクリック
+
+#### デプロイ後の確認
+
+1. `https://your-app.vercel.app/admin.html` にアクセス
+2. パスワードを入力してログイン（デフォルト: `admin123`）
+3. 設定を変更して「💾 設定を保存してダウンロード」をクリック
+4. Supabaseに設定が保存されます
+5. QRコードを生成して配布すると、全ユーザーが同じ設定でARを体験できます
+
+#### ローカル開発での環境変数設定
+
+ローカルで開発する場合は、プロジェクトルートに `.env` ファイルを作成:
+
+```env
+VITE_SUPABASE_URL=https://xxxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGc...
+```
+
+**注意**: `.env` ファイルは `.gitignore` に含めて、Gitにコミットしないようにしてください。
+
 ### Netlifyへのデプロイ（代替）
 
 1. [Netlify](https://www.netlify.com/)にログイン
