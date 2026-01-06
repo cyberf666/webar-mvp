@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebAR MVP - テストページ</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 24px;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    .section {
+      margin-bottom: 32px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+    }
+
+    .section h2 {
+      color: #667eea;
+      margin-bottom: 16px;
+      font-size: 20px;
+    }
+
+    .test-item {
+      background: white;
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .test-item h3 {
+      color: #333;
+      margin-bottom: 8px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .test-item p {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .status.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status.loading {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .status.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn:hover {
+      background: #5568d3;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn.secondary {
+      background: #6b7280;
+    }
+
+    .btn.secondary:hover {
+      background: #4b5563;
+    }
+
+    .result {
+      margin-top: 12px;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .link-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .link-btn {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      background: white;
+      color: #667eea;
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid #667eea;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .link-btn:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .target-preview {
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    .target-preview img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 2px solid #e0e0e0;
+      max-height: 300px;
+      object-fit: contain;
+    }
+
+    .footer {
+      text-align: center;
+      color: white;
+      margin-top: 32px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid #667eea;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 WebAR MVP テストページ</h1>
+
+    <!-- API接続テスト -->
+    <div class="section">
+      <h2>📡 API接続テスト</h2>
+
+      <div class="test-item">
+        <h3>
+          <span id="config-status" class="status pending">待機中</span>
+          設定取得API (GET /api/get-config)
+        </h3>
+        <p>Supabaseから設定を読み込むAPIエンドポイントをテストします。</p>
+        <button class="btn" onclick="testGetConfig()">テスト実行</button>
+        <div id="config-result" class="result" style="display: none;"></div>
+      </div>
+
+      <div class="test-item">
+        <h3>
+          <span id="save-status" class="status pending">待機中</span>
+          設定保存API (POST /api/save-config)
+        </h3>
+        <p>テスト設定をSupabaseに保存するAPIエンドポイントをテストします。</p>
+        <button class="btn" onclick="testSaveConfig()">テスト実行</button>
+        <div id="save-result" class="result" style="display: none;"></div>
+      </div>
+    </div>
+
+    <!-- ファイル存在確認 -->
+    <div class="section">
+      <h2>📁 ファイル存在確認</h2>
+
+      <div class="test-item">
+        <h3>
+          <span id="target-status" class="status pending">待機中</span>
+          ターゲット画像 (target.png)
+        </h3>
+        <p>MindARで使用するターゲット画像が正しく配置されているか確認します。</p>
+        <button class="btn" onclick="testTargetImage()">確認</button>
+        <div id="target-result" class="result" style="display: none;"></div>
+        <div id="target-preview" class="target-preview" style="display: none;">
+          <img id="target-img" src="" alt="Target Image">
+        </div>
+      </div>
+
+      <div class="test-item">
+        <h3>
+          <span id="mind-status" class="status pending">待機中</span>
+          MindARファイル (target.mind)
+        </h3>
+        <p>MindARで使用するコンパイル済みターゲットファイルが存在するか確認します。</p>
+        <button class="btn" onclick="testMindFile()">確認</button>
+        <div id="mind-result" class="result" style="display: none;"></div>
+      </div>
+    </div>
+
+    <!-- ページリンク -->
+    <div class="section">
+      <h2>🔗 ページリンク</h2>
+      <div class="link-group">
+        <a href="/index.html" class="link-btn">🎯 ARアプリ</a>
+        <a href="/admin.html" class="link-btn">⚙️ 管理画面</a>
+        <a href="/qr-code.html" class="link-btn">📱 QRコード生成</a>
+      </div>
+    </div>
+
+    <!-- すべてのテストを実行 -->
+    <div class="section">
+      <button class="btn" onclick="runAllTests()" style="background: #10b981;">
+        ▶️ すべてのテストを実行
+      </button>
+    </div>
+  </div>
+
+  <div class="footer">
+    WebAR MVP - Deployment Test Page
+  </div>
+
+  <script>
+    // 設定取得APIテスト
+    async function testGetConfig() {
+      const statusEl = document.getElementById('config-status');
+      const resultEl = document.getElementById('config-result');
+
+      statusEl.className = 'status loading';
+      statusEl.innerHTML = '<span class="spinner"></span> テスト中';
+      resultEl.style.display = 'block';
+      resultEl.textContent = '通信中...';
+
+      try {
+        const response = await fetch('/api/get-config');
+        const data = await response.json();
+
+        if (response.ok) {
+          statusEl.className = 'status success';
+          statusEl.textContent = '✓ 成功';
+          resultEl.textContent = `Status: ${response.status}\n\n` + JSON.stringify(data, null, 2);
+        } else {
+          throw new Error(`HTTP ${response.status}: ${data.message || data.error}`);
+        }
+      } catch (error) {
+        statusEl.className = 'status error';
+        statusEl.textContent = '✗ 失敗';
+        resultEl.textContent = `エラー: ${error.message}`;
+      }
+    }
+
+    // 設定保存APIテスト
+    async function testSaveConfig() {
+      const statusEl = document.getElementById('save-status');
+      const resultEl = document.getElementById('save-result');
+
+      statusEl.className = 'status loading';
+      statusEl.innerHTML = '<span class="spinner"></span> テスト中';
+      resultEl.style.display = 'block';
+      resultEl.textContent = '通信中...';
+
+      const testConfig = {
+        version: "1.0.0",
+        lastUpdated: new Date().toISOString(),
+        ar: {
+          targetUrl: "https://example.com/test",
+          target: {
+            imageUrl: "/targets/target.png",
+            mindUrl: "/targets/target.mind"
+          },
+          effect: {
+            type: "default",
+            yOffset: 0.2,
+            scale: 1.0
+          }
+        }
+      };
+
+      try {
+        const response = await fetch('/api/save-config', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(testConfig)
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          statusEl.className = 'status success';
+          statusEl.textContent = '✓ 成功';
+          resultEl.textContent = `Status: ${response.status}\n\n` + JSON.stringify(data, null, 2);
+        } else {
+          throw new Error(`HTTP ${response.status}: ${data.message || data.error}`);
+        }
+      } catch (error) {
+        statusEl.className = 'status error';
+        statusEl.textContent = '✗ 失敗';
+        resultEl.textContent = `エラー: ${error.message}`;
+      }
+    }
+
+    // ターゲット画像確認
+    async function testTargetImage() {
+      const statusEl = document.getElementById('target-status');
+      const resultEl = document.getElementById('target-result');
+      const previewEl = document.getElementById('target-preview');
+      const imgEl = document.getElementById('target-img');
+
+      statusEl.className = 'status loading';
+      statusEl.innerHTML = '<span class="spinner"></span> 確認中';
+      resultEl.style.display = 'block';
+      resultEl.textContent = '画像を読み込んでいます...';
+      previewEl.style.display = 'none';
+
+      try {
+        const response = await fetch('/targets/target.png');
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+
+          statusEl.className = 'status success';
+          statusEl.textContent = '✓ 存在';
+          resultEl.textContent = `Status: ${response.status}\nContent-Type: ${response.headers.get('content-type')}\nSize: ${(blob.size / 1024).toFixed(2)} KB`;
+
+          imgEl.src = url;
+          previewEl.style.display = 'block';
+        } else {
+          throw new Error(`HTTP ${response.status}`);
+        }
+      } catch (error) {
+        statusEl.className = 'status error';
+        statusEl.textContent = '✗ 未配置';
+        resultEl.textContent = `エラー: ${error.message}\n\nファイルが存在しないか、アクセスできません。`;
+      }
+    }
+
+    // MindARファイル確認
+    async function testMindFile() {
+      const statusEl = document.getElementById('mind-status');
+      const resultEl = document.getElementById('mind-result');
+
+      statusEl.className = 'status loading';
+      statusEl.innerHTML = '<span class="spinner"></span> 確認中';
+      resultEl.style.display = 'block';
+      resultEl.textContent = 'ファイルを確認しています...';
+
+      try {
+        const response = await fetch('/targets/target.mind');
+
+        if (response.ok) {
+          const blob = await response.blob();
+
+          statusEl.className = 'status success';
+          statusEl.textContent = '✓ 存在';
+          resultEl.textContent = `Status: ${response.status}\nContent-Type: ${response.headers.get('content-type')}\nSize: ${(blob.size / 1024).toFixed(2)} KB`;
+        } else {
+          throw new Error(`HTTP ${response.status}`);
+        }
+      } catch (error) {
+        statusEl.className = 'status error';
+        statusEl.textContent = '✗ 未配置';
+        resultEl.textContent = `エラー: ${error.message}\n\nファイルが存在しないか、アクセスできません。`;
+      }
+    }
+
+    // すべてのテストを実行
+    async function runAllTests() {
+      await testGetConfig();
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      await testSaveConfig();
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      await testTargetImage();
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      await testMindFile();
+    }
+
+    // ページロード時に自動実行
+    window.addEventListener('load', () => {
+      console.log('テストページが読み込まれました');
+    });
+  </script>
+</body>
+</html>
