@@ -193,10 +193,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const sceneEl = document.querySelector('a-scene');
 
+  if (!sceneEl) {
+    updateDebug('エラー: a-sceneが見つかりません');
+    return;
+  }
+
+  updateDebug('状態: シーン初期化中...');
+
   // シーン読み込み完了
   sceneEl.addEventListener('loaded', () => {
     console.log('[AR] シーン読み込み完了');
-    updateDebug('状態: シーン読み込み完了<br>ターゲットをかざしてください');
+    updateDebug('状態: シーン読み込み完了<br>カメラ起動中...');
+  });
+
+  // renderstart - カメラが起動した時
+  sceneEl.addEventListener('renderstart', () => {
+    console.log('[AR] レンダリング開始');
+    updateDebug('状態: レンダリング開始<br>ターゲットをかざしてください');
   });
 
   // MindARエラーハンドリング
