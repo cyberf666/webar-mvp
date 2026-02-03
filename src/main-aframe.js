@@ -329,3 +329,4 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   console.log('[INIT] 全タップリスナー登録完了');
 });
+// Force rebuild 2026年 2月  4日 水曜日 00:50:24    
