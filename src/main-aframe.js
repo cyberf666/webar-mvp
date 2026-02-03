@@ -173,18 +173,41 @@ AFRAME.registerComponent('tap-to-url', {
 const guideOverlay = document.getElementById('guide-overlay');
 const tapIndicator = document.getElementById('tap-indicator');
 
+// ========== デバッグ表示更新 ==========
+function updateDebug(message) {
+  const debugEl = document.getElementById('debug-status');
+  if (debugEl) {
+    debugEl.innerHTML = message;
+  }
+  console.log('[DEBUG]', message);
+}
+
 // ========== A-Frameシーン準備完了 ==========
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('[APP] 起動開始');
+  updateDebug('状態: DOMContentLoaded');
 
   // 設定ファイルを読み込み
   await loadConfig();
+  updateDebug('状態: 設定読み込み完了');
 
   const sceneEl = document.querySelector('a-scene');
 
   // シーン読み込み完了
   sceneEl.addEventListener('loaded', () => {
     console.log('[AR] シーン読み込み完了');
+    updateDebug('状態: シーン読み込み完了<br>ターゲットをかざしてください');
+  });
+
+  // MindARエラーハンドリング
+  sceneEl.addEventListener('arError', (event) => {
+    console.error('[AR] ARエラー:', event);
+    updateDebug('エラー: ' + JSON.stringify(event.detail));
+  });
+
+  sceneEl.addEventListener('arReady', () => {
+    console.log('[AR] AR準備完了');
+    updateDebug('状態: AR準備完了<br>ターゲットをかざしてください');
   });
 
   // ターゲット検出時
@@ -192,6 +215,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   target.addEventListener('targetFound', () => {
     console.log('[AR] ターゲット検出');
+    updateDebug('状態: ✅ ターゲット検出!');
     if (guideOverlay) {
       guideOverlay.classList.add('hidden');
     }
@@ -204,6 +228,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ターゲットロスト時
   target.addEventListener('targetLost', () => {
     console.log('[AR] ターゲットロスト');
+    updateDebug('状態: ターゲットロスト<br>もう一度かざしてください');
     if (guideOverlay) {
       guideOverlay.classList.remove('hidden');
     }
