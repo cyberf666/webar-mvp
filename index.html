@@ -110,21 +110,32 @@
 
   <div id="debug-status" style="
     position: absolute;
-    top: 10px;
-    left: 10px;
-    background: rgba(0,0,0,0.8);
-    color: lime;
-    padding: 10px;
-    font-size: 12px;
+    top: 16px;
+    left: 16px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.4);
+    padding: 0;
+    font-size: 10px;
     z-index: 100;
-    font-family: monospace;
-    max-width: 90%;
+    font-family: 'Helvetica Neue', 'Arial', sans-serif;
+    font-weight: 300;
+    letter-spacing: 1px;
+    max-width: 60%;
   ">
-    状態: 初期化中...
+    loading...
   </div>
 
-  <div id="guide-overlay">
-    目印にかざしてください
+  <div id="guide-overlay" style="
+    font-family: 'Helvetica Neue', 'Arial', sans-serif;
+    font-weight: 300;
+    letter-spacing: 2px;
+    font-size: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+  ">
+    point at the target
   </div>
 
   <div id="tap-indicator" style="
