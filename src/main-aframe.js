@@ -80,13 +80,18 @@ async function loadConfig() {
 
 // ========== 3Dモデルを表示 ==========
 function showModel(modelConfig) {
-  const target = document.querySelector('[mindar-image-target]');
-
-  // 既存の透明ボックスを削除
-  const tapArea = document.getElementById('tap-area');
-  if (tapArea) {
-    tapArea.remove();
+  // index.htmlに既にモデルがある場合はスケール等を更新するだけ
+  const existingModel = document.getElementById('ar-model');
+  if (existingModel) {
+    existingModel.setAttribute('position', `${modelConfig.position.x} ${modelConfig.position.y} ${modelConfig.position.z}`);
+    existingModel.setAttribute('scale', `${modelConfig.scale.x} ${modelConfig.scale.y} ${modelConfig.scale.z}`);
+    existingModel.setAttribute('rotation', `${modelConfig.rotation.x} ${modelConfig.rotation.y} ${modelConfig.rotation.z}`);
+    existingModel.setAttribute('tap-to-url', `url: ${CONFIG.targetURL}`);
+    console.log('[MODEL] 既存モデルの設定を更新');
+    return;
   }
+
+  const target = document.querySelector('[mindar-image-target]');
 
   // GLTFモデルを追加
   const model = document.createElement('a-gltf-model');
@@ -222,6 +227,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('[AR] AR準備完了');
     updateDebug('状態: AR準備完了<br>ターゲットをかざしてください');
   });
+
+  // GLBモデルの読み込み監視
+  const arModel = document.getElementById('ar-model');
+  if (arModel) {
+    arModel.addEventListener('model-loaded', () => {
+      console.log('[MODEL] GLBモデル読み込み完了');
+      updateDebug('状態: AR準備完了<br>モデル読み込み完了<br>ターゲットをかざしてください');
+    });
+    arModel.addEventListener('model-error', (e) => {
+      console.error('[MODEL] GLBモデル読み込みエラー:', e);
+      updateDebug('エラー: モデル読み込み失敗<br>' + (e.detail ? e.detail.src : ''));
+    });
+  }
 
   // ターゲット検出時
   const target = document.querySelector('[mindar-image-target]');
