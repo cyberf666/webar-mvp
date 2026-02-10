@@ -129,30 +129,34 @@
 
   <div id="tap-indicator" style="
     position: absolute;
-    bottom: 100px;
+    bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0, 255, 255, 0.9);
-    color: black;
-    padding: 20px 40px;
-    border-radius: 50px;
-    font-size: 24px;
-    font-weight: bold;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 12px 32px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 3px;
     z-index: 40;
     display: none;
     pointer-events: auto;
     text-align: center;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-    animation: pulse 1.5s infinite;
+    backdrop-filter: blur(4px);
+    animation: fadeInOut 3s ease-in-out infinite;
     cursor: pointer;
+    font-family: 'Helvetica Neue', 'Arial', sans-serif;
+    text-transform: uppercase;
   ">
-    画面をタップ
+    tap to open
   </div>
 
   <style>
-    @keyframes pulse {
-      0%, 100% { transform: translateX(-50%) scale(1); }
-      50% { transform: translateX(-50%) scale(1.1); }
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
     }
   </style>
 
