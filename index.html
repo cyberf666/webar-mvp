@@ -166,47 +166,20 @@
     </a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0">
-      <!-- ========== オプション1: Blenderモデルを使う場合（推奨） ========== -->
-      <!-- public/models/model.glb にBlenderでエクスポートしたGLBファイルを配置してください -->
-      <!--
       <a-gltf-model
+        id="ar-model"
         src="/models/model.glb"
         position="0 0 0"
-        scale="1 1 1"
+        scale="0.5 0.5 0.5"
         rotation="0 0 0"
         animation-mixer
-        tap-to-url="url: https://example.com">
-      </a-gltf-model>
-      -->
-
-      <!-- デバッグ用: 視覚的なエフェクトを表示してターゲット認識を確認 -->
-      <!-- 中心のコア（脈動する球体） -->
-      <a-sphere
-        id="core"
-        position="0 0.2 0"
-        radius="0.1"
-        color="#00ffff"
-        opacity="0.8"
-        animation="property: scale; from: 1 1 1; to: 1.2 1.2 1.2; dur: 1000; easing: easeInOutSine; loop: true; dir: alternate"
         class="clickable">
-      </a-sphere>
+      </a-gltf-model>
 
-      <!-- パーティクル（動く小さな球体） -->
-      <a-entity id="particles" position="0 0.2 0">
-        <a-sphere position="0.3 0 0" radius="0.02" color="#00aaff" opacity="0.8" animation="property: position; from: 0.3 0 0; to: 0.5 0.1 0; dur: 2000; easing: linear; loop: true"></a-sphere>
-        <a-sphere position="-0.3 0 0" radius="0.02" color="#00aaff" opacity="0.8" animation="property: position; from: -0.3 0 0; to: -0.5 0.1 0; dur: 2000; easing: linear; loop: true"></a-sphere>
-        <a-sphere position="0 0 0.3" radius="0.02" color="#00aaff" opacity="0.8" animation="property: position; from: 0 0 0.3; to: 0.1 0 0.5; dur: 2000; easing: linear; loop: true"></a-sphere>
-        <a-sphere position="0 0 -0.3" radius="0.02" color="#00aaff" opacity="0.8" animation="property: position; from: 0 0 -0.3; to: 0.1 0 -0.5; dur: 2000; easing: linear; loop: true"></a-sphere>
-      </a-entity>
-
-      <!-- 回転するリング -->
-      <a-torus id="ring1" position="0 0.2 0" radius="0.3" radius-tubular="0.01" color="#ff00ff" rotation="90 0 0" animation="property: rotation; from: 90 0 0; to: 90 360 0; dur: 3000; easing: linear; loop: true"></a-torus>
-      <a-torus id="ring2" position="0 0.2 0" radius="0.25" radius-tubular="0.01" color="#ffff00" rotation="90 60 0" animation="property: rotation; from: 90 60 0; to: 90 -300 0; dur: 4000; easing: linear; loop: true"></a-torus>
-
-      <!-- タップ領域（透明ボックス・エフェクトの上に重ねる） -->
+      <!-- タップ領域（モデルの上に重ねる） -->
       <a-box
         id="tap-area"
-        position="0 0.2 0"
+        position="0 0 0"
         width="1.5"
         height="1.5"
         depth="0.3"

@@ -8,7 +8,7 @@
       "mindUrl": "/targets/target.mind"
     },
     "model": {
-      "enabled": false,
+      "enabled": true,
       "url": "/models/model.glb",
       "position": {
         "x": 0,
